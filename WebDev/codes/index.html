@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debounce Simple</title>
+</head>
+<body>
+    <div>
+        <label>Enter name to search:</label>
+        <input class="inputbox"></input>
+    </div>
+    <script>
+        function fetchApi(q, t){
+            
+            if(q=='') return;
+
+            console.log("API called with:", q);
+
+            const names = [
+                    "Aarav", "Vivaan", "Aditya", "Vihaan", "Arjun",
+                    "Sai", "Reyansh", "Krishna", "Ishan", "Shaurya",
+                    "Atharv", "Dhruv", "Kabir", "Rohan", "Aryan",
+                    "Yash", "Kunal", "Harsh", "Manav", "Dev",
+                    "Rudra", "Aniket", "Varun", "Samar", "Ayaan",
+                    "Nikhil", "Parth", "Om", "Shivansh", "Tanay",
+                    "Laksh", "Vedant", "Pranav", "Rishabh", "Aryav"
+                    ];
+
+            function handleOutput(){
+                const namesNoCap = names.map((name)=>{
+                    return name.toLocaleLowerCase();
+                })
+                
+                const results = namesNoCap.filter((name)=> {
+                    return name.includes(q)
+                }); 
+
+                console.log(results);
+                return results;
+            }
+
+            handleOutput();
+        }
+
+        let query =  document.getElementsByClassName('inputbox')[0];
+
+
+            function throttle(){
+
+            }
+
+            let id;
+            function debouncer(query){
+                    clearInterval(id);
+                    id = setTimeout(() => {
+                        fetchApi(query);
+                    }, 400);
+            }
+            
+            query.addEventListener('input', () => {
+                debouncer(query.value.toLowerCase());
+            });
+
+        
+    </script>
+</body>
+</html>
