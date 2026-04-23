@@ -4,18 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Debounce Simple</title>
+    <style>
+        .loader{
+            height: 10px;
+            width: 10px;
+            border-radius: 100%;
+            /* background-color: red; */
+            /* border: 2px solid black; */
+        }
+    </style>
 </head>
 <body>
-    <div>
+    <div style="display: flex; flex-direction: row">
         <label>Enter name to search:</label>
-        <input class="inputbox"></input>
+        <div style="display: flex; flex-direction: row; align-items: center; margin-left: 5px" class="searchbar">
+            <input class="inputbox" style="margin-right: 5px;"></input>
+            <div class="loader"></div>
+        </div>
     </div>
+
     <script>
+
+        let loadingState = 'pending';
+        const loader = document.getElementsByClassName('loader')[0];
+
+        function syncLoader(state){
+             if (state === 'pending') {
+            loader.style.backgroundColor = 'red';
+        } else {
+            loader.style.backgroundColor = 'transparent';
+        }
+        }
+
         function fetchApi(q, t){
             
             if(q=='') return;
 
-            console.log("API called with:", q);
+            syncLoader('pending');
 
             const names = [
                     "Aarav", "Vivaan", "Aditya", "Vihaan", "Arjun",
@@ -25,22 +50,32 @@
                     "Rudra", "Aniket", "Varun", "Samar", "Ayaan",
                     "Nikhil", "Parth", "Om", "Shivansh", "Tanay",
                     "Laksh", "Vedant", "Pranav", "Rishabh", "Aryav"
-                    ];
+                    ];                
+                const p = new Promise ((resolve)=>{
+                    console.log("API called with:", q);
+                        setTimeout(() => {
+                            function handleOutput(){
+                                const namesNoCap = names.map((name)=>{
+                                    return name.toLocaleLowerCase();
+                                });
+                                
+                                const results = namesNoCap.filter((name)=> {
+                                    return name.includes(q)
+                                }); 
 
-            function handleOutput(){
-                const namesNoCap = names.map((name)=>{
-                    return name.toLocaleLowerCase();
+                                console.log(results);
+                                return results;
+                            }
+                        handleOutput();
+                        resolve();
+                    }, Math.floor(Math.random() * 3500) + 1);
+                }).then(()=>{
+                    loadingState = 'resolved';
+                    syncLoader('resolved')
+                }).catch((e)=>{
+                    loadingState = 'error'
                 })
-                
-                const results = namesNoCap.filter((name)=> {
-                    return name.includes(q)
-                }); 
-
-                console.log(results);
-                return results;
-            }
-
-            handleOutput();
+            return p;
         }
 
         let query =  document.getElementsByClassName('inputbox')[0];
@@ -53,8 +88,9 @@
             let id;
             function debouncer(query){
                     clearInterval(id);
-                    id = setTimeout(() => {
-                        fetchApi(query);
+                    id = setTimeout(async () => {
+                        const p  = await fetchApi(query);
+                        console.log(loadingState);
                     }, 400);
             }
             
@@ -62,7 +98,6 @@
                 debouncer(query.value.toLowerCase());
             });
 
-        
     </script>
 </body>
 </html>
