@@ -6,98 +6,137 @@
     <title>Debounce Simple</title>
     <style>
         .loader{
-            height: 10px;
-            width: 10px;
-            border-radius: 100%;
-            /* background-color: red; */
-            /* border: 2px solid black; */
+            height: 10px; width: 10px; border-radius: 100%;
         }
     </style>
 </head>
 <body>
-    <div style="display: flex; flex-direction: row">
-        <label>Enter name to search:</label>
-        <div style="display: flex; flex-direction: row; align-items: center; margin-left: 5px" class="searchbar">
-            <input class="inputbox" style="margin-right: 5px;"></input>
-            <div class="loader"></div>
-        </div>
+
+<div style="display: flex; flex-direction: row">
+    <label>Enter name to search:</label>
+    <div style="display: flex; align-items: center; margin-left: 5px">
+        <input class="inputbox" style="margin-right: 5px;">
+        <div class="loader"></div>
     </div>
+</div>
 
-    <script>
+<script>
 
-        let loadingState = 'pending';
-        const loader = document.getElementsByClassName('loader')[0];
+    // ---------------- STATE ----------------
+    let loadingState = 'pending';
+    let currentController = null;
+    let debounceTimer = null;
 
-        function syncLoader(state){
-             if (state === 'pending') {
+    const loader = document.querySelector('.loader');
+    const input = document.querySelector('.inputbox');
+
+
+    // ---------------- LOADER ----------------
+    function syncLoader(state){
+        if (state === 'pending') {
             loader.style.backgroundColor = 'red';
         } else {
             loader.style.backgroundColor = 'transparent';
         }
-        }
-
-        function fetchApi(q, t){
-            
-            if(q=='') return;
-
-            syncLoader('pending');
-
-            const names = [
-                    "Aarav", "Vivaan", "Aditya", "Vihaan", "Arjun",
-                    "Sai", "Reyansh", "Krishna", "Ishan", "Shaurya",
-                    "Atharv", "Dhruv", "Kabir", "Rohan", "Aryan",
-                    "Yash", "Kunal", "Harsh", "Manav", "Dev",
-                    "Rudra", "Aniket", "Varun", "Samar", "Ayaan",
-                    "Nikhil", "Parth", "Om", "Shivansh", "Tanay",
-                    "Laksh", "Vedant", "Pranav", "Rishabh", "Aryav"
-                    ];                
-                const p = new Promise ((resolve)=>{
-                    console.log("API called with:", q);
-                        setTimeout(() => {
-                            function handleOutput(){
-                                const namesNoCap = names.map((name)=>{
-                                    return name.toLocaleLowerCase();
-                                });
-                                
-                                const results = namesNoCap.filter((name)=> {
-                                    return name.includes(q)
-                                }); 
-
-                                console.log(results);
-                                return results;
-                            }
-                        handleOutput();
-                        resolve();
-                    }, Math.floor(Math.random() * 3500) + 1);
-                }).then(()=>{
-                    loadingState = 'resolved';
-                    syncLoader('resolved')
-                }).catch((e)=>{
-                    loadingState = 'error'
-                })
-            return p;
-        }
-
-        let query =  document.getElementsByClassName('inputbox')[0];
+    }
 
 
-            function throttle(){
+    // ---------------- MOCK API ----------------
+    function fetchApi(q, signal){
 
+        if(q === '') return;
+
+        syncLoader('pending');
+
+        return new Promise((resolve, reject)=>{
+
+            console.log("API called with:", q);
+
+            // ❗ If already aborted
+            if (signal.aborted) {
+                return reject(new Error("aborted"));
             }
 
-            let id;
-            function debouncer(query){
-                    clearInterval(id);
-                    id = setTimeout(async () => {
-                        const p  = await fetchApi(query);
-                        console.log(loadingState);
-                    }, 400);
-            }
-            
-            query.addEventListener('input', () => {
-                debouncer(query.value.toLowerCase());
+            const timerId = setTimeout(() => {
+
+                // ❗ Check again before finishing
+                if (signal.aborted) {
+                    return reject(new Error("aborted"));
+                }
+
+                const names = [
+                    "Aarav","Vivaan","Aditya","Vihaan","Arjun",
+                    "Sai","Reyansh","Krishna","Ishan","Shaurya",
+                    "Atharv","Dhruv","Kabir","Rohan","Aryan",
+                    "Yash","Kunal","Harsh","Manav","Dev",
+                    "Rudra","Aniket","Varun","Samar","Ayaan",
+                    "Nikhil","Parth","Om","Shivansh","Tanay",
+                    "Laksh","Vedant","Pranav","Rishabh","Aryav"
+                ];
+
+                const results = names
+                    .map(n => n.toLowerCase())
+                    .filter(n => n.includes(q));
+
+                console.log(results);
+
+                resolve(results);
+
+            }, Math.floor(Math.random() * 3000));
+
+            // ❗ REAL abort logic
+            signal.addEventListener("abort", () => {
+                clearTimeout(timerId);
+                reject(new Error("aborted"));
+                console.log("Request cancelled");
             });
 
-    </script>
+        })
+        .then(() => {
+            loadingState = 'resolved';
+            syncLoader('resolved');
+        })
+        .catch((e) => {
+            if (e.message !== "aborted") {
+                loadingState = 'error';
+            }
+        });
+    }
+
+
+    // ---------------- DEBOUNCE ----------------
+    function debouncer(query){
+
+        // clear previous debounce timer
+        clearTimeout(debounceTimer);
+
+        debounceTimer = setTimeout(async () => {
+
+            // ❗ cancel previous request
+            if (currentController) {
+                currentController.abort();
+            }
+
+            // ❗ create new controller
+            currentController = new AbortController();
+
+            try {
+                await fetchApi(query, currentController.signal);
+                console.log(loadingState);
+            } catch (e) {
+                // already handled inside fetchApi
+            }
+
+        }, 400);
+    }
+
+
+    // ---------------- EVENT ----------------
+    input.addEventListener('input', () => {
+        debouncer(input.value.toLowerCase());
+    });
+
+</script>
+
 </body>
 </html>
