@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo</title>
+    <style>
+        body{
+           background: black;
+           color: beige; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Todo</h1>
+    <label>Enter something: </label><input class="input">
+    <button onclick="addTodo()" class="addbtn">Add</button>
+    <ul class="list">
+    </ul>
+    <script>
+        const list = document.getElementsByClassName('list')[0];
+        const input = document.getElementsByClassName('input')[0];
+
+        function addTodo(){
+            const value = document.querySelector("input").value;
+            const newitem = document.createElement("li");
+            const btn = document.createElement('button');
+            btn.textContent = "Delete";
+            
+            newitem.textContent = input.value;
+            
+            newitem.append(btn);
+            list.appendChild(newitem);
+
+            btn.onclick = (()=>{
+                newitem.remove();
+            });
+            
+        }
+    </script>
+</body>
+</html>
