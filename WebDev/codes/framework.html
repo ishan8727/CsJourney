@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Framework Todo</title>
+    <style>
+        body{
+            background-color: black;
+            color: antiquewhite;
+        }
+    </style>
+</head>
+<body>
+    <h2>Todo Render</h1>
+    <label>Enter something: </label>
+    <input>
+    <button onclick="addTodo()">Add</button>
+    <button onclick="deleteFirst()">Delete First</button>
+    <button onclick="deleteLast()">Delete Last</button>
+    <ul class="list"></ul>
+
+    <script>
+
+        let todo = [];
+
+        function addTodo(){
+            todo.push({
+                title: document.querySelector('input').value
+            })
+            render();
+        }
+
+        function deleteFirst(){
+            todo.shift();
+            render()
+        }
+
+        function deleteLast(){
+            todo.pop();
+            render()
+        }
+
+        function deleteTodo(toDoObject){
+            todo = todo.filter((i)=> i!==toDoObject);
+            render();
+        }
+
+        function render(){
+            const list = document.getElementsByClassName('list')[0];
+            list.innerHTML = ''
+           
+            todo.forEach(toDo => {
+                createElement(toDo);
+            });
+
+            function createElement(toDo){
+                const item = document.createElement('li');
+                list.appendChild(item);
+                item.textContent = toDo.title + " ";
+                const del = document.createElement('button');
+                del.textContent = 'delete';
+                item.append(del);
+               
+                const text = document.querySelector('input');
+                text.value = '';
+
+                del.addEventListener('click', () => deleteTodo(toDo));
+            } 
+        }
+
+    </script>
+</body>
+</html>
