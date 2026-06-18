@@ -1,78 +1,92 @@
-const express = require('express');
-const jwt = require('jsonwebtoken');
+const express = require("express");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json());
 
 const users = [];
- JWT_SECRET = 'IamAnoobDev';
+JWT_SECRET = "IamAnoobDev";
 
-app.post('/signup',(req,res)=>{
-    const id = req.body.id;
-    const pass = req.body.pass;
+app.get('/', (req,res)=>{
+  res.sendFile(__dirname + '/public/index.html')
+})
 
-    users.push({
+app.post("/signup", (req, res) => {
+  const id = req.body.id;
+  const pass = req.body.pass;
+
+  users.push({
+    id: id,
+    pass: pass,
+  });
+
+  res.json({
+    message: "successfully created a user!",
+  });
+});
+
+app.post("/signin", (req, res) => {
+  const id = req.body.id;
+  const pass = req.body.pass;
+
+  const foundUser = users.find((u) => {
+    return u.id == id && u.pass == pass;
+  });
+
+  if (foundUser) {
+    isloggedin = true;
+    foundUser.isloggedin = isloggedin;
+
+    const token = jwt.sign(
+      {
         id: id,
-        pass: pass
-    })
+      },
+      JWT_SECRET,
+    );
+
+    foundUser.token = token;
 
     res.json({
-        message: "successfully created a user!"
-    })
-})
+      token: token,
+    });
+  } else {
+    res.json({
+      error: "wrong creds or no user!",
+    });
+  }
+});
 
-app.post('/signin', (req,res)=>{
-    const id = req.body.id;
-    const pass = req.body.pass;
+function auth(req, res, next) {
+  const token = req.headers.token;
+  const decoded = jwt.verify(token, JWT_SECRET);
 
-    const foundUser = users.find((u)=>{
-        return u.id == id && u.pass == pass
-    })
-    
-    if(foundUser){
-        const token = jwt.sign({
-            id: id
-        }, JWT_SECRET);
+  if (decoded.id) {
+    req.headers.user = decoded.id;
+    next();
+  } else {
+    res.json({
+      error: "you are not logged in!",
+    });
+  }
+}
 
-        foundUser.token = token;
+app.get("/me", auth, (req, res) => {
+  const user = req.headers.user;
+  let foundUser;
 
-        res.json({
-            token: token
-        })
-
-    } else{
-        res.json({
-            error:"wrong creds or no user!"
-        })
+  for (let i = 0; i < users.length; i++) {
+    if (user == users[i].id) {
+      foundUser = users[i];
     }
-})
+  }
 
+  res.json({
+    id: foundUser.id,
+    pass: foundUser.pass,
+    Date: new Date().toISOString(),
+  });
+});
 
-app.get('/me', (req,res)=>{
-    const token = req.headers.token;
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    let foundUser;
-    if(decoded.id){
-        for(let i=0 ; i<users.length ; i++){
-            if(decoded.id == users[i].id){
-                foundUser = users[i];
-            }
-        }
-
-        res.json({
-            id: foundUser.id,
-            pass: foundUser.pass
-        })
-    }
-    else{
-        res.json({
-            message:"invalid token passed!"
-        })
-    }
-})
-
-
-app.listen(3000,()=>{
-    console.log('Listening on port 3k');
-})
+app.listen(3000, () => {
+  console.log("Listening on port 3k");
+});

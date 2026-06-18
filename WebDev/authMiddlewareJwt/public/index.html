@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auth Website</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+    <script>
+    // signup
+      async function signup() {
+        const id = document.getElementById("signup-id").value;
+        const pass = document.getElementById("signup-pass").value;
+
+        await axios.post("http://localhost:3000/signup", {
+          id: id,
+          pass: pass,
+        });
+      }
+      // signin
+      async function signin() {
+        const id = document.getElementById("sign-id").value;
+        const pass = document.getElementById("sign-pass").value;
+
+        const res = await axios.post("http://localhost:3000/signin", {
+          id: id,
+          pass: pass,
+        });
+
+        localStorage.setItem("token", res.data.token);
+        
+        fetchInfo();
+
+      }
+      //fetchinfo
+      async function fetchInfo(){
+        const res = await axios.get('http://localhost:3000/me', {
+            headers: {
+                token: localStorage.getItem('token')
+            }
+        })
+        
+        const info = document.getElementById('info').innerHTML = `Username: ${res.data.id} Password: ${res.data.pass}`;
+      }
+
+      fetchInfo();
+
+      function logout(){
+        localStorage.removeItem('token');
+        info.innerHTML="";
+      }
+
+    </script>
+  </head>
+  <body>
+    <div>
+      <b>Signup</b>
+      <input
+        type="text"
+        name="username"
+        id="signup-id"
+        placeholder="username"
+      />
+      <input
+        type="password"
+        name="password"
+        id="signup-pass"
+        placeholder="password"
+      />
+      <button onclick="signup()">Sign-up</button>
+    </div>
+    <div>
+      <b>Signin</b>
+      <input type="text" name="username" id="sign-id" placeholder="username" />
+      <input type="password" name="password" id="sign-pass" placeholder="password" />
+      <button onclick="signin()">Sign-in</button>
+    </div>
+    <div>
+      <b><i>User Information</i></b>
+      <b><p id="info"></p></b>
+    </div>
+    <div>
+      <button onclick="logout()">logout</button>
+    </div>
+  </body>
+</html>
