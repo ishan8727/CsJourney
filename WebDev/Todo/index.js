@@ -1,6 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const { z } = require('zod');
+
 const { UserModel, TodoModel } = require('./db');
 
 const app = express();
@@ -13,15 +16,32 @@ mongoose.connect(
 );
 
 app.post('/signup', async (req,res)=>{
+    
+    const requiredSchema = z.object({
+        name: z.string().min(3).max(30),
+        email: z.email().min(15).max(100),
+        pass: z.string().min(4).max(60)
+    })
+
     const name = req.body.name;
     const email = req.body.email;
     const pass = req.body.pass;
-
-    await UserModel.insertOne({
-      name: name,
-      email: email,
-      pass: pass,
-    });
+    
+    const vaidatedData = requiredSchema.safeParse(req.body);
+  
+    if(vaidatedData.success){
+        const hashedPass = await bcrypt.hash(pass, 5);
+        
+        await UserModel.insertOne({
+          name: name,
+          email: email,
+          pass: hashedPass,
+        });
+    }if(!vaidatedData.success){
+        return res.status(400).json({
+          error: vaidatedData.error
+        });
+    }
 
     res.json({
         message:"user created successfully!"
@@ -33,23 +53,32 @@ app.post("/signin", async(req, res) => {
     const pass = req.body.pass;
 
     const response = await UserModel.findOne({
-        email: email,
-        pass: pass
+        email: email
     })
 
     if(response){
-        const token = jwt.sign({
-            id : response._id.toString() 
-        }, JWT_SECRET);
 
-        res.json({
-            token: token,
-            message: 'logged in successfully!'
+        const validPass = await bcrypt.compare(pass, response.pass);
+        
+        if(validPass){
+            const token = jwt.sign({
+                id : response._id.toString() 
+            }, JWT_SECRET);
+
+            res.json({
+                token: token,
+                message: 'logged in successfully!'
+                })
+            }
+        else{
+            res.json({
+                error:"incorrect password!"
             })
         }
+    }
     else{
         res.status(403).json({
-            error:"incorrect credentails!"
+            error:"User not found!!"
         });
     }
 });
@@ -103,7 +132,7 @@ app.get("/todo", auth, async (req, res) => {
 
 app.patch('/todo', auth, async (req,res)=>{
     const id = req.id;
-    // remembet todoId to send in req object
+    // remembet todoId to send in req.body object
     const todoId = req.body.todoId;
     const done = req.body.done;
 

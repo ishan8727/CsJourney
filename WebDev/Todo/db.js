@@ -11,7 +11,7 @@ const User = new Schema({
 
 const Todo = new Schema({
     userId: ObjectId,
-    title: { type:String, unique: true},
+    title: String,
     done: Boolean
 })
 
