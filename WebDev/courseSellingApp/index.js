@@ -1,23 +1,14 @@
 const express = require('express');
-const userRouter = require('./router/userRouter');
-const courseRouter = require('./router/courseRouter');
+const mongoose = require('mongoose');
+const userRouter = require('./router/user');
+const courseRouter = require('./router/course');
+const adminRouter = require('./router/admin')
 
 const app = express();
 
-// user router
-app.use('/user/api/v1', userRouter );
-
-// // use this somehow......
-// app.post('/course/purchase',(req,res)=>{
-
-// })
-
-// app.get("/courses/preview", (req, res) => {
-
-// });
-
-courseRouter(app);
-
+app.use('/api/v1/user', userRouter );
+app.use("api/v1/admin", adminRouter);
+app.use("/api/v1/course", courseRouter);
 
 app.listen(3000,()=>{
     console.log('Port running on 3k');
