@@ -4,6 +4,8 @@ const userRouter = require('./router/user');
 const courseRouter = require('./router/course');
 const adminRouter = require('./router/admin')
 
+require("dotenv").config();
+
 const app = express();
 app.use(express.json());
 
@@ -12,7 +14,7 @@ app.use('/api/v1/admin', adminRouter);
 app.use("/api/v1/course", courseRouter);
 
 async function main(){
-    await mongoose.connect('mongodb+srv://insan00008_db_user:Sjj7KhJ6MaVFkYV2@cluster0.6nnp8zq.mongodb.net/coursera-app');
+    await mongoose.connect(process.env.MONGO_SECRET);
     console.log('connected to DB!');
 
     app.listen(3000, () => {

@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const { userModel } = require("../db");
 const userRouter = express.Router();
 
-JWT_SECRET = "123ABCIamIshan";
+require("dotenv").config();
 
 userRouter.post("/signup", async (req, res) => {
   const email = req.body.email;
@@ -70,7 +70,7 @@ userRouter.post("/signin", async (req, res) => {
         {
           id: foundUser._id,
         },
-        JWT_SECRET,
+        proces.env.JWT_USER_SECRET,
       );
 
       return res.status(200).json({

@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { adminModel } = require('../db');
 
-JWT_SECRET = '123ABCIshanchaudhary'
 
 adminRouter.post("/signup", async (req, res) => {
   const email = req.body.email;
@@ -70,7 +69,7 @@ adminRouter.post("/signin", async (req, res) => {
         {
           id: foundUser._id,
         },
-        JWT_SECRET,
+        process.env.JWT_ADMIN_SECRET,
       );
 
       return res.status(200).json({
