@@ -3,8 +3,9 @@ const adminRouter = Router();
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { adminModel } = require('../db');
 
+const { adminModel, courseModel } = require('../db');
+const adminMiddleware = require('../middleware/admin');
 
 adminRouter.post("/signup", async (req, res) => {
   const email = req.body.email;
@@ -88,7 +89,24 @@ adminRouter.post("/signin", async (req, res) => {
   }
 });
 
-adminRouter.post('/course', (req,res)=>{
+// this router lets an admin upload a course
+adminRouter.post('/course', adminMiddleware , async (req,res)=>{
+  const adminId = req.id;
+
+  const { title, description, price, imageUrl } = req.body;
+  
+  try {
+    const course = await courseModel.insertOne({
+      title: title,
+      description: description,
+      price: price,
+      imageUrl: imageUrl,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      message:"error in the DB insertion!"
+    })
+  }
 
 })
 
@@ -99,3 +117,12 @@ adminRouter.put('course', (req,res)=>{
 adminRouter.get("course/bulk", (req, res) => {});
 
 module.exports = adminRouter;
+
+
+// const courseSchema = new Schema({
+//   title: String,
+//   description: String,
+//   price: String,
+//   imageUrl: String,
+//   creatorId: ObjectId,
+// });
