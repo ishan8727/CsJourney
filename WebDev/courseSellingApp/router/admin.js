@@ -3,9 +3,11 @@ const adminRouter = Router();
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const mongoose = require('mongoose');
 
 const { adminModel, courseModel } = require('../db');
 const adminMiddleware = require('../middleware/admin');
+const { isValidObjectId } = require("mongoose");
 
 adminRouter.post("/signup", async (req, res) => {
   const email = req.body.email;
@@ -101,7 +103,14 @@ adminRouter.post('/course', adminMiddleware , async (req,res)=>{
       description: description,
       price: price,
       imageUrl: imageUrl,
+      creatorId: adminId
     });
+
+    return res.status(200).json({
+      message:"Course Added Successfully!",
+      id: course._id
+    })
+
   } catch (error) {
     return res.status(401).json({
       message:"error in the DB insertion!"
@@ -110,19 +119,75 @@ adminRouter.post('/course', adminMiddleware , async (req,res)=>{
 
 })
 
-adminRouter.put('course', (req,res)=>{
+adminRouter.put('/course', adminMiddleware, async(req,res)=>{
+  const adminId = req.id;
+
+  // req headers are converted to small case automatically so keep all lowercase!
+
+  const courseId = req.headers.courseid;
+
+  console.log(courseId);
+
+  const { title, description, price, imageUrl } = req.body;
+  const _courseId = new mongoose.Types.ObjectId(courseId);
+
+  try {
+    const course = await courseModel.updateOne(
+      {
+        _id: _courseId,
+        creatorId: adminId,
+      },
+      {
+        $set: {
+          title: title,
+          description: description,
+          price: price,
+          imageUrl: imageUrl,
+        }
+    }
+    );
+
+    console.log("the DB process is completed!")
+
+    return res.status(200).json({
+      message:"Course updated successFully!"
+    })
+
+  } catch (error) {
+    res.status(500).json({
+      error:"an error occured in the DB process or user not corect!"
+    })
+  }
 
 })
 
-adminRouter.get("course/bulk", (req, res) => {});
+adminRouter.get("/course/bulk", adminMiddleware, async(req, res) => {
+  const adminId = req.id;
+  let coursesArr = [];
+  
+  try {
+    const courses = await courseModel.find({
+      creatorId: adminId,
+    });
+
+    coursesArr = courses.map((course)=>{
+      return {
+        "title": course.title,
+        "description": course.description,
+        "price": course.price,
+        "image": course.imageUrl
+      }
+    })
+
+    return res.status(200).json({
+      coursesArr
+    });
+  
+  } catch (error) {
+    res.status(500).json({
+      message:"error in DB call!"
+    })
+  }
+});
 
 module.exports = adminRouter;
-
-
-// const courseSchema = new Schema({
-//   title: String,
-//   description: String,
-//   price: String,
-//   imageUrl: String,
-//   creatorId: ObjectId,
-// });

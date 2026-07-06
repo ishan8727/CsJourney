@@ -6,7 +6,7 @@ function adminMiddleware (req, res, next){
     const verifyUser = jwt.verify(token, process.env.JWT_ADMIN_SECRET);
 
     if(verifyUser){
-        req.id = verifyUser._id
+        req.id = verifyUser.id;
         next();
     }else{
         return res.status(401).json({

@@ -2,7 +2,8 @@ const express = require("express");
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { userModel } = require("../db");
+const { userModel, purchaseModel } = require("../db");
+const userMiddleware = require("../middleware/user");
 const userRouter = express.Router();
 
 require("dotenv").config();
@@ -60,7 +61,7 @@ userRouter.post("/signin", async (req, res) => {
 
   try {
     const foundUser = await userModel.findOne({
-      email: email,
+      email: email
     });
 
     const verifyPass = await bcrypt.compare(pass, foundUser.pass);
@@ -70,7 +71,7 @@ userRouter.post("/signin", async (req, res) => {
         {
           id: foundUser._id,
         },
-        proces.env.JWT_USER_SECRET,
+        process.env.JWT_USER_SECRET,
       );
 
       return res.status(200).json({
@@ -89,6 +90,31 @@ userRouter.post("/signin", async (req, res) => {
   }
 });
 
-userRouter.get("/purchases", (req, res) => {});
+userRouter.get("/purchases", userMiddleware , async (req, res) => {
+  const userId = req.id;
+  const courseId = req.headers.courseid;
+  
+
+  try {
+    await purchaseModel.insertOne({
+    userId: userId,
+    courseId: courseId
+  })
+
+  return res.status(200).json({
+    success:"Course bought successfully!"
+  })
+  } catch (error) {
+    res.status(500).json({
+      error:"error in DB transaction! your money is gone heheheh!"
+    })
+  }
+});
 
 module.exports = userRouter;
+
+
+// const purchaseSchema = new Schema({
+//     userId: ObjectId,
+//     course: ObjectId
+// });
