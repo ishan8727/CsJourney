@@ -126,8 +126,6 @@ adminRouter.put('/course', adminMiddleware, async(req,res)=>{
 
   const courseId = req.headers.courseid;
 
-  console.log(courseId);
-
   const { title, description, price, imageUrl } = req.body;
   const _courseId = new mongoose.Types.ObjectId(courseId);
 

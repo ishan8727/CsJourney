@@ -7,7 +7,6 @@ function userMiddleware (req, res, next){
     
     if(verifyUser){
         req.id = verifyUser.id;
-        console.log('user middle ware verifyuser: ', verifyUser);
         next();
     }else{
         return res.status(401).json({

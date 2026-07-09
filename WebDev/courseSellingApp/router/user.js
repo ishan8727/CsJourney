@@ -2,9 +2,10 @@ const express = require("express");
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { userModel, purchaseModel } = require("../db");
+const { userModel, purchaseModel, courseModel } = require("../db");
 const userMiddleware = require("../middleware/user");
 const userRouter = express.Router();
+const mongoose = require("mongoose");
 
 require("dotenv").config();
 
@@ -90,15 +91,18 @@ userRouter.post("/signin", async (req, res) => {
   }
 });
 
-userRouter.get("/purchases", userMiddleware , async (req, res) => {
+userRouter.post("/purchase", userMiddleware , async (req, res) => {
   const userId = req.id;
   const courseId = req.headers.courseid;
-  
+
+  const _courseId = new mongoose.Types.ObjectId(courseId);
+
+  console.log('normal courseID: ',courseId," object created: ",_courseId);
 
   try {
     await purchaseModel.insertOne({
-    userId: userId,
-    courseId: courseId
+      userId: userId,
+      course: _courseId
   })
 
   return res.status(200).json({
@@ -111,10 +115,30 @@ userRouter.get("/purchases", userMiddleware , async (req, res) => {
   }
 });
 
+// complete this endpoint to get all the courses from the course Doc.
+
+userRouter.get("/purchase", userMiddleware, async (req,res)=>{
+  const Userid = req.id;
+  
+  let courseId = []
+
+  const data = await purchaseModel.find({
+    userId: Userid
+  })
+
+  courseId = data.map( item => item.course)
+
+  const courseData = await courseModel.find({
+    _id: { $in: courseId }
+  });
+
+   console.log(courseData);
+
+  return res.status(200).json({
+    message: {
+      courseData
+    }
+  });
+})
+
 module.exports = userRouter;
-
-
-// const purchaseSchema = new Schema({
-//     userId: ObjectId,
-//     course: ObjectId
-// });
