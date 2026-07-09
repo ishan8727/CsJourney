@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduSphere | Explore & Acquire Knowledge</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- Toast Notifications Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Header & Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo" onclick="switchView('explore')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+        </svg>
+        EduSphere<span>.</span>
+      </a>
+      <nav class="nav-links">
+        <button id="nav-explore" class="nav-btn active" onclick="switchView('explore')">
+          Explore Courses
+        </button>
+        <button id="nav-student" class="nav-btn" onclick="switchView('student')">
+          Student Portal
+        </button>
+        <button id="nav-admin" class="nav-btn" onclick="switchView('admin')">
+          Admin Portal
+        </button>
+        <span id="global-auth-badge" class="auth-status-badge" style="display: none;"></span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Areas -->
+  <main>
+    
+    <!-- 1. Explore View (Public Dashboard) -->
+    <section id="explore-view" class="view-section active">
+      <div class="hero">
+        <h1>Empower Your Future with <span>Expert-Led Courses</span></h1>
+        <p>Access high-quality content, learn at your own pace, and master modern technology skills with our curated curriculum.</p>
+        <button class="btn btn-primary" onclick="scrollToExplore()">Browse Catalog</button>
+      </div>
+
+      <div id="catalog-section" class="grid-header">
+        <h2>Available Courses</h2>
+        <span id="catalog-count" class="text-secondary">0 courses found</span>
+      </div>
+
+      <div id="public-courses-grid" class="course-grid">
+        <!-- Courses will be dynamically loaded here -->
+        <div class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <h3>No Courses Found</h3>
+          <p>We are currently uploading new learning material. Please check back shortly.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Student Portal View -->
+    <section id="student-view" class="view-section">
+      <!-- Authenticated Student View -->
+      <div id="student-dashboard" style="display: none;">
+        <div class="profile-bar">
+          <div class="profile-info">
+            <div class="avatar" id="student-avatar">U</div>
+            <div class="profile-text">
+              <h3 id="student-name">Welcome Back</h3>
+              <p id="student-email">student@edusphere.com</p>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="logout('user')">Sign Out</button>
+        </div>
+
+        <div class="grid-header">
+          <h2>My Enrolled Courses</h2>
+        </div>
+
+        <div id="purchased-courses-grid" class="course-grid">
+          <!-- Purchased courses will be loaded here -->
+        </div>
+      </div>
+
+      <!-- Unauthenticated Student Auth Forms -->
+      <div id="student-auth" class="auth-grid">
+        <!-- Sign In -->
+        <div class="auth-card">
+          <h2>Student Sign In</h2>
+          <p>Access your dashboard and continue learning.</p>
+          <form id="student-signin-form" onsubmit="handleSignIn(event, 'user')">
+            <div class="form-group">
+              <label for="student-signin-email">Email Address</label>
+              <input type="email" id="student-signin-email" class="form-control" placeholder="name@domain.com" required>
+            </div>
+            <div class="form-group">
+              <label for="student-signin-pass">Password</label>
+              <input type="password" id="student-signin-pass" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+          </form>
+        </div>
+
+        <!-- Sign Up -->
+        <div class="auth-card">
+          <h2>Student Sign Up</h2>
+          <p>Create an account and start acquiring skills.</p>
+          <form id="student-signup-form" onsubmit="handleSignUp(event, 'user')">
+            <div class="form-group">
+              <label for="student-signup-email">Email Address</label>
+              <input type="email" id="student-signup-email" class="form-control" placeholder="name@domain.com" required>
+            </div>
+            <div class="form-group">
+              <label for="student-signup-pass">Password</label>
+              <input type="password" id="student-signup-pass" class="form-control" placeholder="Min 5 characters" required minlength="5">
+            </div>
+            <div class="form-group">
+              <label for="student-signup-first">First Name</label>
+              <input type="text" id="student-signup-first" class="form-control" placeholder="Min 5 characters" required minlength="5">
+              <div class="form-help">Must be at least 5 characters long</div>
+            </div>
+            <div class="form-group">
+              <label for="student-signup-last">Last Name</label>
+              <input type="text" id="student-signup-last" class="form-control" placeholder="Min 5 characters" required minlength="5">
+              <div class="form-help">Must be at least 5 characters long</div>
+            </div>
+            <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">Create Account</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Admin Portal View -->
+    <section id="admin-view" class="view-section">
+      <!-- Authenticated Admin View -->
+      <div id="admin-dashboard" style="display: none;">
+        <div class="profile-bar">
+          <div class="profile-info">
+            <div class="avatar" id="admin-avatar">A</div>
+            <div class="profile-text">
+              <h3>Admin Console</h3>
+              <p id="admin-email">admin@edusphere.com</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 1rem;">
+            <button class="btn btn-primary btn-sm" onclick="openCourseModal(null)">Create Course</button>
+            <button class="btn btn-secondary btn-sm" onclick="logout('admin')">Sign Out</button>
+          </div>
+        </div>
+
+        <div class="grid-header">
+          <h2>Courses Created by You</h2>
+        </div>
+
+        <div id="created-courses-grid" class="course-grid">
+          <!-- Admin's courses loaded here -->
+        </div>
+      </div>
+
+      <!-- Unauthenticated Admin Auth Forms -->
+      <div id="admin-auth" class="auth-grid">
+        <!-- Sign In -->
+        <div class="auth-card">
+          <h2>Admin Sign In</h2>
+          <p>Log in to manage and upload your courses.</p>
+          <form id="admin-signin-form" onsubmit="handleSignIn(event, 'admin')">
+            <div class="form-group">
+              <label for="admin-signin-email">Email Address</label>
+              <input type="email" id="admin-signin-email" class="form-control" placeholder="name@domain.com" required>
+            </div>
+            <div class="form-group">
+              <label for="admin-signin-pass">Password</label>
+              <input type="password" id="admin-signin-pass" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+          </form>
+        </div>
+
+        <!-- Sign Up -->
+        <div class="auth-card">
+          <h2>Admin Sign Up</h2>
+          <p>Register as an instructor on EduSphere.</p>
+          <form id="admin-signup-form" onsubmit="handleSignUp(event, 'admin')">
+            <div class="form-group">
+              <label for="admin-signup-email">Email Address</label>
+              <input type="email" id="admin-signup-email" class="form-control" placeholder="name@domain.com" required>
+            </div>
+            <div class="form-group">
+              <label for="admin-signup-pass">Password</label>
+              <input type="password" id="admin-signup-pass" class="form-control" placeholder="Min 5 characters" required minlength="5">
+            </div>
+            <div class="form-group">
+              <label for="admin-signup-first">First Name</label>
+              <input type="text" id="admin-signup-first" class="form-control" placeholder="Min 5 characters" required minlength="5">
+              <div class="form-help">Must be at least 5 characters long</div>
+            </div>
+            <div class="form-group">
+              <label for="admin-signup-last">Last Name</label>
+              <input type="text" id="admin-signup-last" class="form-control" placeholder="Min 5 characters" required minlength="5">
+              <div class="form-help">Must be at least 5 characters long</div>
+            </div>
+            <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">Create Admin Account</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal for Creating/Editing Course -->
+  <div id="course-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Create Course</h3>
+        <button class="close-btn" onclick="closeCourseModal()">&times;</button>
+      </div>
+      <form id="course-form" onsubmit="submitCourse(event)">
+        <div class="form-group">
+          <label for="course-title">Course Title</label>
+          <input type="text" id="course-title" class="form-control" required placeholder="e.g. Master Modern JavaScript">
+        </div>
+        <div class="form-group">
+          <label for="course-desc">Description</label>
+          <textarea id="course-desc" class="form-control" rows="3" required placeholder="Explain what students will learn..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="course-price">Price ($)</label>
+          <input type="text" id="course-price" class="form-control" required placeholder="e.g. 99.99">
+        </div>
+        <div class="form-group">
+          <label for="course-image">Image URL</label>
+          <input type="url" id="course-image" class="form-control" required placeholder="https://images.unsplash.com/...">
+        </div>
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeCourseModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="modal-submit-btn">Save Course</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 EduSphere. Premium Course Platform. Powered by Express, Mongoose, and CSS Glassmorphism.</p>
+  </footer>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:3000/api/v1';
+    let currentEditingCourseId = null;
+    let cachedPublicCourses = [];
+
+    // Helper to Decode JWT (payload extraction)
+    function parseJwt(token) {
+      try {
+        return JSON.parse(atob(token.split('.')[1]));
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Toast Alerts
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      let icon = '';
+      if (type === 'success') {
+        icon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+      } else if (type === 'error') {
+        icon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+      } else {
+        icon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+      }
+
+      toast.innerHTML = `${icon} <span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) reverse forwards';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Scroll to Explore Section
+    function scrollToExplore() {
+      document.getElementById('catalog-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // View Routing (Tabs Switching)
+    function switchView(viewId) {
+      document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(`${viewId}-view`).classList.add('active');
+      document.getElementById(`nav-${viewId}`).classList.add('active');
+
+      if (viewId === 'explore') {
+        loadPublicCourses();
+      } else if (viewId === 'student') {
+        renderStudentPortal();
+      } else if (viewId === 'admin') {
+        renderAdminPortal();
+      }
+      updateAuthBadge();
+    }
+
+    // Update global status badge in navigation bar
+    function updateAuthBadge() {
+      const userToken = localStorage.getItem('user_token');
+      const adminToken = localStorage.getItem('admin_token');
+      const badge = document.getElementById('global-auth-badge');
+
+      if (adminToken) {
+        badge.textContent = 'Admin Mode';
+        badge.style.display = 'inline-block';
+        badge.style.background = 'rgba(168, 85, 247, 0.1)';
+        badge.style.color = 'var(--color-accent)';
+        badge.style.borderColor = 'rgba(168, 85, 247, 0.2)';
+      } else if (userToken) {
+        badge.textContent = 'Student Mode';
+        badge.style.display = 'inline-block';
+        badge.style.background = 'rgba(6, 182, 212, 0.1)';
+        badge.style.color = 'var(--color-secondary)';
+        badge.style.borderColor = 'rgba(6, 182, 212, 0.2)';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    // Form handlers: Sign Up & Sign In
+    async function handleSignUp(event, role) {
+      event.preventDefault();
+      const prefix = role === 'user' ? 'student' : 'admin';
+      const email = document.getElementById(`${prefix}-signup-email`).value;
+      const pass = document.getElementById(`${prefix}-signup-pass`).value;
+      const firstName = document.getElementById(`${prefix}-signup-first`).value;
+      const lastName = document.getElementById(`${prefix}-signup-last`).value;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/${role}/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, pass, firstName, lastName })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          showToast(data.message || 'Account created successfully! Please sign in.', 'success');
+          document.getElementById(`${prefix}-signup-form`).reset();
+        } else {
+          showToast(data.message || data.error || 'Registration failed.', 'error');
+        }
+      } catch (err) {
+        showToast('Server connection failed.', 'error');
+      }
+    }
+
+    async function handleSignIn(event, role) {
+      event.preventDefault();
+      const prefix = role === 'user' ? 'student' : 'admin';
+      const email = document.getElementById(`${prefix}-signin-email`).value;
+      const pass = document.getElementById(`${prefix}-signin-pass`).value;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/${role}/signin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, pass })
+        });
+        const data = await response.json();
+
+        if (response.ok && data.token) {
+          localStorage.setItem(`${role}_token`, data.token);
+          localStorage.setItem(`${role}_email`, email);
+          showToast('Signed in successfully!', 'success');
+          
+          document.getElementById(`${prefix}-signin-form`).reset();
+          
+          if (role === 'user') {
+            renderStudentPortal();
+          } else {
+            renderAdminPortal();
+          }
+          updateAuthBadge();
+        } else {
+          showToast(data.message || data.error || 'Invalid credentials.', 'error');
+        }
+      } catch (err) {
+        showToast('Server connection failed.', 'error');
+      }
+    }
+
+    function logout(role) {
+      localStorage.removeItem(`${role}_token`);
+      localStorage.removeItem(`${role}_email`);
+      showToast('Logged out successfully.', 'info');
+      
+      if (role === 'user') {
+        renderStudentPortal();
+      } else {
+        renderAdminPortal();
+      }
+      updateAuthBadge();
+    }
+
+    // Portal Renders
+    function renderStudentPortal() {
+      const token = localStorage.getItem('user_token');
+      const email = localStorage.getItem('user_email');
+      const authDiv = document.getElementById('student-auth');
+      const dashDiv = document.getElementById('student-dashboard');
+
+      if (token) {
+        authDiv.style.display = 'none';
+        dashDiv.style.display = 'block';
+        document.getElementById('student-email').textContent = email;
+        document.getElementById('student-avatar').textContent = email.charAt(0).toUpperCase();
+        loadStudentCourses();
+      } else {
+        authDiv.style.display = 'grid';
+        dashDiv.style.display = 'none';
+      }
+    }
+
+    function renderAdminPortal() {
+      const token = localStorage.getItem('admin_token');
+      const email = localStorage.getItem('admin_email');
+      const authDiv = document.getElementById('admin-auth');
+      const dashDiv = document.getElementById('admin-dashboard');
+
+      if (token) {
+        authDiv.style.display = 'none';
+        dashDiv.style.display = 'block';
+        document.getElementById('admin-email').textContent = email;
+        document.getElementById('admin-avatar').textContent = email.charAt(0).toUpperCase();
+        loadAdminCourses();
+      } else {
+        authDiv.style.display = 'grid';
+        dashDiv.style.display = 'none';
+      }
+    }
+
+    // Load Public Courses (Explore View)
+    async function loadPublicCourses() {
+      const grid = document.getElementById('public-courses-grid');
+      const countSpan = document.getElementById('catalog-count');
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/course`);
+        const result = await response.json();
+        
+        if (response.ok && result.data) {
+          cachedPublicCourses = result.data;
+          countSpan.textContent = `${cachedPublicCourses.length} courses available`;
+          
+          if (cachedPublicCourses.length === 0) {
+            grid.innerHTML = `
+              <div class="empty-state" style="grid-column: 1 / -1;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <h3>No Courses Found</h3>
+                <p>We are currently uploading new learning material. Please check back shortly.</p>
+              </div>`;
+            return;
+          }
+
+          grid.innerHTML = cachedPublicCourses.map(course => {
+            const hasPurchased = false; // Resolved in loadStudentCourses or dynamically
+            return `
+              <div class="course-card">
+                <div class="course-img-wrapper">
+                  <img class="course-img" src="${course.imageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600'}" alt="${course.title}" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600'">
+                </div>
+                <div class="course-content">
+                  <h3 class="course-title">${escapeHTML(course.title)}</h3>
+                  <p class="course-desc">${escapeHTML(course.description)}</p>
+                  <div class="course-footer">
+                    <span class="course-price">$${course.price}</span>
+                    <button class="btn btn-primary btn-sm" onclick="purchaseCourse('${course._id}')">Buy Now</button>
+                  </div>
+                </div>
+              </div>`;
+          }).join('');
+        }
+      } catch (err) {
+        showToast('Failed to fetch catalog.', 'error');
+      }
+    }
+
+    // Purchase Course
+    async function purchaseCourse(courseId) {
+      const token = localStorage.getItem('user_token');
+      if (!token) {
+        showToast('Please sign in to the Student Portal to purchase courses.', 'warning');
+        switchView('student');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/user/purchase`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'token': token,
+            'courseid': courseId
+          }
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          showToast(data.success || 'Course purchased successfully!', 'success');
+          loadStudentCourses();
+        } else {
+          showToast(data.error || 'Failed to complete transaction.', 'error');
+        }
+      } catch (err) {
+        showToast('Error connecting to backend server.', 'error');
+      }
+    }
+
+    // Load Purchased Student Courses
+    async function loadStudentCourses() {
+      const grid = document.getElementById('purchased-courses-grid');
+      const token = localStorage.getItem('user_token');
+
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/user/purchase`, {
+          method: 'GET',
+          headers: { 'token': token }
+        });
+        const data = await response.json();
+
+        if (response.ok && data.message && data.message.courseData) {
+          const courses = data.message.courseData;
+          if (courses.length === 0) {
+            grid.innerHTML = `
+              <div class="empty-state" style="grid-column: 1 / -1;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="22" y2="7"/><line x1="2" y1="17" x2="22" y2="17"/></svg>
+                <h3>No Purchases Yet</h3>
+                <p>Explore our courses and kickstart your growth path today!</p>
+                <button class="btn btn-primary btn-sm" onclick="switchView('explore')">Explore Courses</button>
+              </div>`;
+            return;
+          }
+
+          grid.innerHTML = courses.map(course => `
+            <div class="course-card">
+              <div class="course-img-wrapper">
+                <img class="course-img" src="${course.imageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600'}" alt="${course.title}" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600'">
+              </div>
+              <div class="course-content">
+                <h3 class="course-title">${escapeHTML(course.title)}</h3>
+                <p class="course-desc">${escapeHTML(course.description)}</p>
+                <div class="course-footer">
+                  <span class="course-price">$${course.price}</span>
+                  <span class="auth-status-badge" style="color: var(--success); border-color: rgba(16, 185, 129, 0.2); background: rgba(16, 185, 129, 0.1);">Enrolled</span>
+                </div>
+              </div>
+            </div>`).join('');
+        }
+      } catch (err) {
+        showToast('Failed to load purchased courses.', 'error');
+      }
+    }
+
+    // Load Admin Created Courses
+    async function loadAdminCourses() {
+      const grid = document.getElementById('created-courses-grid');
+      const token = localStorage.getItem('admin_token');
+
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/admin/course/bulk`, {
+          method: 'GET',
+          headers: { 'token': token }
+        });
+        const data = await response.json();
+
+        if (response.ok && data.coursesArr) {
+          const courses = data.coursesArr;
+          if (courses.length === 0) {
+            grid.innerHTML = `
+              <div class="empty-state" style="grid-column: 1 / -1;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <h3>Upload Your First Course</h3>
+                <p>Create a class, add details and start educating students worldwide.</p>
+                <button class="btn btn-primary btn-sm" onclick="openCourseModal(null)">Create Course</button>
+              </div>`;
+            return;
+          }
+
+          // Make sure we have the latest public catalog cached for matching course IDs
+          await fetch(`${API_BASE_URL}/course`).then(r => r.json()).then(r => {
+            if (r.data) cachedPublicCourses = r.data;
+          }).catch(e => console.error("Error loading public mapping: ", e));
+
+          grid.innerHTML = courses.map(course => {
+            // Find real ID by title match from public courses
+            const matchedPublicCourse = cachedPublicCourses.find(c => c.title === course.title);
+            const courseIdString = matchedPublicCourse ? matchedPublicCourse._id : '';
+
+            // Handle keys: "image" or "imageUrl"
+            const imgUrl = course.image || course.imageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600';
+
+            return `
+              <div class="course-card">
+                <div class="course-img-wrapper">
+                  <img class="course-img" src="${imgUrl}" alt="${course.title}" onerror="this.src='https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600'">
+                </div>
+                <div class="course-content">
+                  <h3 class="course-title">${escapeHTML(course.title)}</h3>
+                  <p class="course-desc">${escapeHTML(course.description)}</p>
+                  <div class="course-footer">
+                    <span class="course-price">$${course.price}</span>
+                    <button class="btn btn-secondary btn-sm" onclick="openCourseModal('${courseIdString}', '${escapeQuotes(course.title)}', '${escapeQuotes(course.description)}', '${course.price}', '${escapeQuotes(imgUrl)}')">Edit Details</button>
+                  </div>
+                </div>
+              </div>`;
+          }).join('');
+        }
+      } catch (err) {
+        showToast('Failed to load created courses.', 'error');
+      }
+    }
+
+    // Modal Control
+    function openCourseModal(courseId = null, title = '', desc = '', price = '', imageUrl = '') {
+      currentEditingCourseId = courseId;
+      const modal = document.getElementById('course-modal');
+      const modalTitle = document.getElementById('modal-title');
+      const submitBtn = document.getElementById('modal-submit-btn');
+
+      document.getElementById('course-title').value = title;
+      document.getElementById('course-desc').value = desc;
+      document.getElementById('course-price').value = price;
+      document.getElementById('course-image').value = imageUrl;
+
+      if (courseId) {
+        modalTitle.textContent = 'Edit Course';
+        submitBtn.textContent = 'Update Details';
+      } else {
+        modalTitle.textContent = 'Create Course';
+        submitBtn.textContent = 'Publish Course';
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeCourseModal() {
+      document.getElementById('course-modal').classList.remove('active');
+      document.getElementById('course-form').reset();
+      currentEditingCourseId = null;
+    }
+
+    // Create or Edit course submit handler
+    async function submitCourse(event) {
+      event.preventDefault();
+      const token = localStorage.getItem('admin_token');
+      if (!token) {
+        showToast('Session expired. Please re-authenticate.', 'error');
+        return;
+      }
+
+      const title = document.getElementById('course-title').value;
+      const description = document.getElementById('course-desc').value;
+      const price = document.getElementById('course-price').value;
+      const imageUrl = document.getElementById('course-image').value;
+
+      const payload = { title, description, price, imageUrl };
+
+      try {
+        let response;
+        if (currentEditingCourseId) {
+          // Edit Course (PUT)
+          response = await fetch(`${API_BASE_URL}/admin/course`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'token': token,
+              'courseid': currentEditingCourseId
+            },
+            body: JSON.stringify(payload)
+          });
+        } else {
+          // Create Course (POST)
+          response = await fetch(`${API_BASE_URL}/admin/course`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'token': token
+            },
+            body: JSON.stringify(payload)
+          });
+        }
+
+        const result = await response.json();
+
+        if (response.ok) {
+          showToast(result.message || 'Action executed successfully.', 'success');
+          closeCourseModal();
+          loadAdminCourses();
+          loadPublicCourses();
+        } else {
+          showToast(result.error || result.message || 'Action failed.', 'error');
+        }
+      } catch (err) {
+        showToast('Server transaction failed.', 'error');
+      }
+    }
+
+    // Utility Escapers
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, 
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
+    }
+
+    function escapeQuotes(str) {
+      if (!str) return '';
+      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // Initial Loading
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPublicCourses();
+      updateAuthBadge();
+    });
+  </script>
+</body>
+</html>
