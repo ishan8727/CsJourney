@@ -1,58 +1,60 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 function App() {
 
-  const [count, setCount] = useState(0);
+  const [todos, SetTodos] = useState([{
+    task: 'Complete Homework',
+    done: false,
+    id: 1
+  }])
 
-  useEffect(()=>{
-    
-    const interval = setInterval(()=>{
-      setCount(c=>c+10)
-    },1000);
-    
-    setTimeout(()=>{
-      clearInterval(interval)
-    },5000);
-  
-  },[])
+  const [task, setTask] = useState("");
 
-  function increaseCount() {
-    setCount(c => c+1);
+  function addTodo(task) {
+    SetTodos((prevTodos)=>{
+      return [
+        ...prevTodos,{
+          task: task,
+          done: false,
+          id: Math.random()
+        }
+      ]
+    })
+
+    setTask("");
+
   }
 
-  function decreaseCount() {
-    setCount(c => c-1);
-  }
-
-  function resetCount(){
-    setCount(0);
-  }
-
-  function implementClock(){
-    const clock = setInterval(()=>{
-      setCount(c=>c+1);
-    } ,1000);
-    setTimeout(()=>{
-      clearInterval(clock);
-    },5000);
+  function toggleDone(id){
+    SetTodos((PrevTodo)=>
+      PrevTodo.map((todo)=>
+        todo.id === id ? {...todo, done : !todo.done} : todo
+      )
+    )
   }
 
   return (
     <div>
-      <h1 style={{
-        'marginTop': 30
-      }}>
-        Count: {count}
-      </h1>
-      <button onClick={increaseCount}>+</button>
-      {" "}
-      <button onClick={decreaseCount}>-</button>
-      {" "}
-      <button onClick={resetCount}>Reset</button>
-      {" "}
-      <button onClick={implementClock}>Clock mode</button>
+      <h1>Todo Basics</h1>
+      <h2>
+        <input type="text" value={task} onChange={(e) => setTask(e.target.value)} />
+        {" "}
+        <button onClick={()=>{addTodo(task)}}>Add</button>
+      </h2>
+      <h3>
+        {
+          todos.map((todo) => (
+            <div key={todo.id}>
+              <span> {todo.task} {todo.done ? "💙" : "😡"}</span>{" "}
+              <button onClick={() => {
+                toggleDone(todo.id);
+              }}>Done</button>
+            </div>
+          ))
+        }
+      </h3>
     </div>
   )
 }
 
-export default App
+export default App;
