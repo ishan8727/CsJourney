@@ -41,7 +41,6 @@ const Linkedin = () => {
                         style={currentTab === t.id ? buttonClick : buttonStyle}
                     >
                         {t.icon}
-                        {/* FIXED: Using variable syntax {t.label} instead of hardcoded string */}
                         <span>{t.label}</span>
                     </button>
                 ))}
