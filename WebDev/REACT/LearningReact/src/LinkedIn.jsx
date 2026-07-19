@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaHome, FaUserFriends, FaBriefcase, FaFacebookMessenger, FaUserCircle } from "react-icons/fa";
 import { BsBellFill } from "react-icons/bs";
 
@@ -14,25 +14,41 @@ const Linkedin = () => {
         { id: 'Me', label: 'Me', icon: <FaUserCircle size={34} /> },
     ];
 
+    useEffect(()=>{
+        // calls the correct API according to the Tab
+        console.log('fetch(',currentTab,')');
+
+        return() => {
+            // unsubscribe from an event.
+            // eg when in linked home we constantly get data ~ so 
+            // when we seitch the page we unsubscribe from the feed and subscribe to the new feed.
+        }
+
+    },[currentTab])
+
     const buttonStyle = {
         border: 'none',
+        borderRadius:10,
         borderBottom: '3px solid transparent',
         display: 'flex',
         backgroundColor: 'white',
         flexDirection: 'column',
         padding: 10,
         alignItems: 'center',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        width: 100,
+        height: 70
     };
 
     const buttonClick = {
         ...buttonStyle,
         borderBottom: '3px solid black',
+        backgroundColor: '#D3D3D3',
     };
 
     return (
         <div>
-            <div style={{ display: 'flex', gap: 15, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', backgroundColor: 'white', alignItems: 'center', justifyContent: 'center' }}>
 
                 {tabsinfo.map((t) => (
                     <button
