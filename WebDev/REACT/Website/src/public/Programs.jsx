@@ -1,24 +1,20 @@
-import { useState } from "react";
-
-// so basically ~ use state creates a vat and setting it triggers a reRender
-// so it is ineffecient and not the right tool for this ~
-// tool for the task is useRef!
+import { useRef, useState } from "react";
 
 const Programs = () => {
 
   const [counter, setCounter] = useState(0);
-  let [clock, setClock] = useState(0);
+  const interval = useRef(null); 
 
   function startCounter(){
-    let interaval = setInterval(()=>{
+    const clock = setInterval(()=>{
       setCounter((c)=>c+1)
-    },1000);
+    },100);
 
-    setClock(interaval);
+    interval.current = clock;
   }
   
   function stopCounter() {
-    clearInterval(clock);
+    clearInterval(interval.current);
   }
 
   return (

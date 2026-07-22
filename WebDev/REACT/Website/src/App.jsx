@@ -37,7 +37,7 @@ function Navbar(){
   return (
     <div style={{
       padding: 2, display: 'flex', background: '', alignItems: "center"}}>
-      <img src={logo} style={{ width: 60, marginRight: 12, marginLeft: 12 }} />
+      <Link to={'/'}><img src={logo} style={{ width: 60, marginRight: 12, marginLeft: 12 }} /></Link>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background:'#D3D3D3', borderRadius:10 }}>
         <Link to={'exams'} style={navbarStyle} >Exams</Link>
         <Link to={'programs'} style={navbarStyle} >Programs</Link>
