@@ -1,5 +1,9 @@
 import { useState } from "react";
 
+// so basically ~ use state creates a vat and setting it triggers a reRender
+// so it is ineffecient and not the right tool for this ~
+// tool for the task is useRef!
+
 const Programs = () => {
 
   const [counter, setCounter] = useState(0);
