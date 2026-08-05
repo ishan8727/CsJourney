@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import useSwr from './hooks/Swr'
+import useSwr from '../hooks/Swr'
 import vamp from './assets/vampire.jpeg';
 
 const App2 = () => {

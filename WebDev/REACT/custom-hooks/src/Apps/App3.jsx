@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import usePrev from './hooks/usePrev.js'
+import usePrev from '../hooks/usePrev.js'
 
 const App3 = () => {
 

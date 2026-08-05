@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useEffect, useState } from "react"
-import useFetch from "./hooks/useFetch";
+import useFetch from "../hooks/useFetch";
 import vamp from './assets/vampire.jpeg';
 
 const App = () => {

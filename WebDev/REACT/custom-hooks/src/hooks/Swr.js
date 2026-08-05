@@ -17,7 +17,7 @@ function useSwr(url){
                 let res = await fetch(url, {
                   signal: controller.signal
                 });
-                res = await res.json();
+                res = await res.json(); 
                 if(res){
                   setData(res);
                 }else {
