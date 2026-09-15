@@ -1,75 +1,125 @@
-import React, { memo, useContext, useState } from 'react'
-import { MessagesProvider, myMessages, myNetworkContext, MyNetworkProvider } from './store/NavbarContext'
+// import React, { createContext, useContext, useState } from 'react';
 
-const App = () => {
+// const CountContext = createContext();
 
-  const [count, setCount] = useState(0)
+// function CountContextProvider({ children }) {
+//   const [count, setCount] = useState(0);
 
-  console.log('------------------------------------------')
+//   return <CountContext.Provider value={{ count, setCount }}>
+//     {children}
+//   </CountContext.Provider>
+// }
+
+// function Parent() {
+
+//   console.log('Parent Rendered')
+  
+//   return (
+//     <CountContextProvider>
+//       <br/>
+//       <Increase />
+//       <Decrease />
+//       <Value />
+//     </CountContextProvider>
+//   );
+// }
+
+// function Decrease() {
+
+
+//   console.log('Decrease Rendered')
+
+//   const { count, setCount } = useContext(CountContext);
+//   return <button onClick={() => setCount(count - 1)}>Decrease</button>;
+// }
+
+// function Increase() {
+
+
+//   console.log('Increase Rendered')
+
+//   const { count, setCount } = useContext(CountContext);
+//   return <button onClick={() => setCount(count + 1)}>Increase</button>;
+// }
+
+// function Value() {
+
+//   console.log('Value Rendered')
+//   console.log('-----------------------------')
+
+//   const { count } = useContext(CountContext);
+//   return <p>Count: {count}</p>;
+// }
+
+// // App Component
+// const App = () => {
+
+
+//   console.log('-----------------------------')
+//   console.log('App Rendered')
+
+//   return <div>
+//     <Parent />
+//   </div>
+// };
+
+// export default App;
+
+import React, { createContext, useContext, useState } from 'react';
+import { RecoilRoot, useRecoilValue, useSetRecoilState } from 'recoil';
+import { count } from './store/Atoms';
+
+function Parent() {
+
   console.log('Parent Rendered')
 
   return (
-    <>
-
-      <button onClick={() => setCount((c) => c + 1)}>{count}</button>
-      <br/>
-      <NavBar/>
-      <Content/>
-    </>
-  )
+    <RecoilRoot>
+      <br />
+      <Increase />
+      <Decrease />
+      <Value />
+    </RecoilRoot>
+  );
 }
+
+function Decrease() {
+
+  console.log('Decrease Rendered')
+
+  const setCount = useSetRecoilState(count);
+
+  return <button onClick={() => setCount((c)=>c-1)}>Decrease</button>;
+}
+
+function Increase() {
+
+  console.log('Increase Rendered')
+
+  const setCount = useSetRecoilState(count);
+
+  return <button onClick={() => setCount((c)=>c+1)}>Increase</button>;
+}
+
+function Value() {
+
+  console.log('Value Rendered')
+  console.log('-----------------------------')
+
+  const countValue = useRecoilValue(count);
+
+  return <p>Count: {countValue}</p>;
+}
+
+
+const App = () => {
+
+  console.log('-----------------------------')
+  console.log('App Rendered')
+
+  return <div>
+    <Parent />
+  </div>
+};
 
 export default App;
-
-const NavBar = memo(function () {
-
-  console.log('NAVBAR Rendered')
-
-  return (
-    <>
-      <MyNetworkProvider>
-        <MessagesProvider>
-          <div className="nabar" style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-            <MyNetwork />
-            <Messages />
-          </div>
-        </MessagesProvider>
-      </MyNetworkProvider>
-    </>
-  )
-})
-
-const MyNetwork = memo (function(){
-
-  console.log("MY NETWORK RENDERED");
-  
-  const { network, setNetwork } = useContext(myNetworkContext);
-
-  return(
-    <>
-      <button onClick={() => setNetwork((c) => c + 1)}>My Network {network}</button>
-    </>
-  )
-})
-
-const Messages = memo (function() {
-
-  console.log("MESSAGES RENDERED");
-
-  const { messages, setMessages } = useContext(myMessages);
-
-  return (
-    <>
-      <button onClick={() => setMessages((m)=>m+1)}>Messages {messages}</button>
-    </>
-  )
-})
-
-
-function Content() {
-  console.log("CONTENT RENDERED");
-
-  console.log('----------------------------------------')
-
-  return <h1>Content Here!</h1>;
-}
